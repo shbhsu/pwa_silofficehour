@@ -97,7 +97,7 @@
             console.log("refresh err")
         }
     }
-    var interval_time = 1000 * 60 * 60 * 3; //every 3 Hr
+    var interval_time = 1000 * 60 * 60 * 1; //every 1 Hr
     
      setInterval(function () {
           myrefresh();
