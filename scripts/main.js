@@ -16,7 +16,7 @@ var calender = new Vue({
       if (xhr.status === 200) {
         var res = JSON.parse(xhr.responseText)
 
-        var dayList = getWednesday(4,new Date( res.items[0].start).getDate());
+        var dayList = getWednesday(4,new Date().getDate());
         var pointer = 0;
 
 
