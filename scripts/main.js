@@ -1,6 +1,6 @@
 
 var calender = new Vue({
-  el: '#calender',
+  el: '#calenderList',
   data() {
     return {
       calenders: []
@@ -19,6 +19,58 @@ var calender = new Vue({
         var dayList = getWednesday(4,(new Date(res.items[0].start)>=new Date())? new Date().getDate():new Date(res.items[0].start).getDate());
         var pointer = 0;
 
+        var resBook;
+        var xhrBook = new XMLHttpRequest();
+        xhrBook.open('GET', 'https://aucal.pdis.nat.gov.tw/getReserve');
+        xhrBook.onload = function () {
+            if (xhrBook.status === 200) {
+                resBook = JSON.parse(xhrBook.responseText)
+
+                var booked = [];
+
+                resBook.reservations.forEach(element => {
+                    var tmpKey = element.startDate.substring(0, element.startDate.indexOf('T'))
+                    if (booked[tmpKey] == null) {
+                        booked[tmpKey] = 1;
+
+                    }
+                    else {
+                        booked[tmpKey] = booked[tmpKey] + 1;
+                    }
+                });
+
+                const MaxBooking = 3;//每日可預約總數
+                const MaxAvailableMonth = 2; //開放可預約月數 本月+N月
+
+                calenders.forEach(element => {
+
+                    if (booked[element.fullDT] == MaxBooking) {//
+                        element.bookStatus = "已額滿"
+                        element.clsBookStatus="red"
+                    }
+                    else if (booked[element.fullDT] < MaxBooking) {
+                        element.bookStatus = "尚可預約"
+                        element.clsBookStatus="blue"
+                    }
+                    else if (new Date(element.fullDT).getMonth() <= (new Date().getMonth() + MaxAvailableMonth) && new Date(element.fullDT) > new Date()) {
+
+                        element.bookStatus = "尚可預約"
+                        element.clsBookStatus="blue"
+                    }
+                    else {
+                        element.bookStatus = "未開放預約"
+                        element.clsBookStatus="red"
+                    }
+
+                });
+
+            }
+            else {
+                //err
+            }
+        };
+
+        xhrBook.send();
 
 
         for (i = 0; i < dayList.length; i++) {
@@ -34,8 +86,8 @@ var calender = new Vue({
           }
        
 
-          var date = ("0" + (element.getMonth() + 1)).slice(-2) + "/" + ("0" + element.getDate()).slice(-2);//MM/dd
-          var auDate = ("0" + (new Date(TWStart).getMonth() + 1)).slice(-2) + "/" + ("0" + new Date(TWStart).getDate()).slice(-2);
+          var date = ("0" + (element.getMonth() + 1)).slice(-2) + "-" + ("0" + element.getDate()).slice(-2);//MM/dd
+          var auDate = ("0" + (new Date(TWStart).getMonth() + 1)).slice(-2) + "-" + ("0" + new Date(TWStart).getDate()).slice(-2);
           console.log(date + "  " + auDate);
           if (auDate === (date)) {
             if (res.items[pointer].holiday == true) {//排除假日
@@ -45,18 +97,18 @@ var calender = new Vue({
 
               var startDT = new Date(TWStart);
               var endDT = new Date(TWEnd);
-              var clsSubtitle = 'calenderSubtitle';
+              var clsSubtitle = 'calenderSubtitle blue';
               if (startDT.getHours() != 10) {
-                clsSubtitle = 'calenderSubtitle Red';
+                clsSubtitle = 'calenderSubtitle red';
               }
               var datetime = ("0" + startDT.getHours()).slice(-2) + ":" + ("0" + startDT.getMinutes()).slice(-2) + "～" + ("0" + endDT.getHours()).slice(-2) + ":" + ("0" + endDT.getMinutes()).slice(-2);
-              var objCalender = { title: "唐鳳都在這", date: date + "(三)", subtitle: datetime, cls: "calenderGreen", clsSubtitle: clsSubtitle }
+               var objCalender = { fullDT: element.getFullYear() + "-" + date, title: date + "(三)", date: date + "(三)", subtitle: datetime, cls: "calenderGreen", clsSubtitle: clsSubtitle, bookStatus: "" ,clsBookStatus:""}
               calenders.push(objCalender);
             }
             pointer++;
           }
           else {
-            var objCalender = { title: "另有公務行程", date: date + "(三)", subtitle: "另有公務行程", cls: "calenderRed", clsSubtitle: "calenderSubtitle Red" }
+            var objCalender = { fullDT: element.getFullYear() + "-" + date, title: date + "(三)", date: date + "(三)", subtitle: "另有公務行程", cls: "calenderRed", clsSubtitle: "calenderSubtitle red", bookStatus: "",clsBookStatus:"" }
             calenders.push(objCalender);
           }
         };
