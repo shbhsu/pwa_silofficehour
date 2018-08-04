@@ -78,9 +78,9 @@
                         <div class="calenderContent">
                             <div class="calenderTitle" v-html="calender.title"></div>
                             <div :class="calender.clsSubtitle">
-                                <span style='color:black;'>現場拜會</span><span style="padding-left: 4px;" v-html="calender.subtitle"></span> </div>
+                                <span style='color:black;'>現場拜會：</span><span  v-html="calender.subtitle"></span> </div>
                             <div :class='"calenderBookStatus"+" "+ calender.clsBookStatus'>
-                                <span style='color:black;'>提前預約</span> <span  v-html="calender.bookStatus"></span> </div>
+                                <span style='color:black;'>提前預約：</span><span  v-html="calender.bookStatus"></span> </div>
 
                         </div>
                     </div>
