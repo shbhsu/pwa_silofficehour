@@ -30,16 +30,22 @@ var calender = new Vue({
 
                 resBook.reservations.forEach(element => {
                     var tmpKey = element.startDate.substring(0, element.startDate.indexOf('T'))
-                    if (booked[tmpKey] == null) {
-                        booked[tmpKey] = 1;
 
+                    //後臺預約起訖跨多個時段時 前臺顯示並計算出跨幾個已預約時段
+                    let times = new Date(element.bufferedEndDate).getTime()/1000-new Date(element.bufferedStartDate).getTime()/1000;
+                    let numOfSlot = Math.ceil(times/(60*60)); // 60min per slot
+
+                    if (booked[tmpKey] == null) {
+                        booked[tmpKey] = numOfSlot;
                     }
                     else {
-                        booked[tmpKey] = booked[tmpKey] + 1;
+                        booked[tmpKey] = booked[tmpKey] + numOfSlot;
                     }
                 });
 
-                const MaxBooking = 3;//每日可預約總數
+                // const MaxBooking = 3;//每日可預約總數
+                const availableTimespans = ["T14:00", "T15:00", "T16:00"];
+                var MaxBooking = availableTimespans.length; //每日可預約總數
                 const MaxAvailableMonth = 2; //開放可預約月數 本月+N月
 
                 calenders.forEach(element => {
